@@ -22,6 +22,7 @@ var Store = (function () {
 var App = (function () {
   var R = window.Render;
   var screenEl, currentScreen = 'dashboard';
+  var appBooted = false, appBooting = false;
 
   /* ---------- 共通UI ---------- */
   function el(id) { return document.getElementById(id); }
@@ -721,13 +722,17 @@ var App = (function () {
   }
 
   async function bootApp() {
+    if (appBooted || appBooting) { hideLogin(); return; }
+    appBooting = true;
     hideLogin();
     try {
       await Store.init();
       renderVehicleBar();
       show('dashboard');
+      appBooted = true;
       if (window.Notify && Notify.isEnabled()) Notify.checkAndNotify().catch(function () {});
     } catch (e) {
+      appBooting = false;
       screenEl.innerHTML = '<div class="loading err">初期化に失敗: ' + R.esc(e.message) + '</div>';
     }
   }
@@ -740,12 +745,19 @@ var App = (function () {
     el('modalBackdrop').onclick = closeModal;
     el('appName').textContent = CONFIG.APP_NAME;
 
-    // 認証切れ時はログイン画面へ
-    API.setAuthHandler(function (msg) { Auth.signOut(); showLogin(msg ? '再ログインが必要です: ' + msg : ''); });
+    // 認証切れ時の処理（アプリ起動済みならトーストのみ、未起動ならログイン画面へ）
+    API.setAuthHandler(function (msg) {
+      if (appBooted) {
+        toast('セッションが切れました。ページを再読み込みしてください。');
+      } else {
+        Auth.signOut();
+        showLogin(msg ? '再ログインが必要です: ' + msg : '');
+      }
+    });
 
     await Auth.init();
-    // サインイン成功でアプリ起動
-    Auth.setOnChange(function () { bootApp(); });
+    // サインイン成功でアプリ起動（認証情報受信時に即ログイン画面を隠す）
+    Auth.setOnChange(function () { hideLogin(); bootApp(); });
 
     if (Auth.signedIn() || CONFIG.DEMO_MODE) {
       await bootApp();
