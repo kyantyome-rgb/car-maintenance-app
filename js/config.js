@@ -5,9 +5,9 @@
  * self を使うことで、ページと Service Worker（importScripts）の両方から参照できる。
  */
 self.CONFIG = {
-  DEMO_MODE: true,
-  API_BASE: '',                 // 例: 'https://script.google.com/macros/s/XXXX/exec'
-  APP_TOKEN: '',                // GAS の Script Property APP_TOKEN と一致させる（公開系API/通知取得用）
-  GOOGLE_CLIENT_ID: '',         // Google Cloud の OAuth クライアントID（Web）。Sign-In に使用
+  DEMO_MODE: false,
+  API_BASE: 'https://script.google.com/macros/s/AKfycbzhEUyc-WxFu14qL3Sb5MK31gzEOwwXRPLqcsBGnt9wsJczOhoWPbo-7JZcZ7dzlBAZ/exec',
+  APP_TOKEN: 'SF012345678901472583690369258147',
+  GOOGLE_CLIENT_ID: '228351172126-ie0ldvpicto23nntr06oqnrfaft8t0vu.apps.googleusercontent.com',
   APP_NAME: 'MYCAR·CONSOLE'
 };
