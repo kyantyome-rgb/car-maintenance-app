@@ -1,0 +1,15 @@
+{
+  "name": "MyCar Console",
+  "short_name": "MyCar",
+  "description": "マイカーのメンテナンス・給油・維持費を管理するダッシュボード",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#02050c",
+  "theme_color": "#02050c",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
