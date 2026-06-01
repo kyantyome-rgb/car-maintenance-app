@@ -755,14 +755,22 @@ var App = (function () {
       }
     });
 
-    await Auth.init();
-    // サインイン成功でアプリ起動（認証情報受信時に即ログイン画面を隠す）
+    // ★ コールバックは init より前に登録（自動ログインの認証情報が先に届いても取りこぼさない）
     Auth.setOnChange(function () { hideLogin(); bootApp(); });
+
+    await Auth.init();
 
     if (Auth.signedIn() || CONFIG.DEMO_MODE) {
       await bootApp();
     } else {
       showLogin();
+      // 保険：自動ログインの認証情報が遅れて届くケースに備え、数回だけ再確認
+      var tries = 0;
+      var iv = setInterval(function () {
+        if (appBooted || appBooting) { clearInterval(iv); return; }
+        if (Auth.signedIn()) { clearInterval(iv); hideLogin(); bootApp(); return; }
+        if (++tries > 10) clearInterval(iv);
+      }, 500);
     }
 
     // アプリに戻ってきたときにも通知チェック
