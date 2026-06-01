@@ -12,7 +12,7 @@ window.API = (function () {
     return Object.assign({
       action: action,
       token: C.APP_TOKEN,                                       // 公開系API/通知取得の保護用
-      id_token: (window.Auth && Auth.idToken()) || ''           // ユーザー認証（GoogleIDトークン）
+      access_token: (window.Auth && Auth.token()) || ''         // ユーザー認証（Googleアクセストークン）
     }, params || {});
   }
 

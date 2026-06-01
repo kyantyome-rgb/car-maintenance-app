@@ -1,102 +1,105 @@
 /**
- * 認証モジュール（Google Sign-In / Google Identity Services）。
- *   - 本番: GIS でユーザーがGoogleログイン → IDトークン(JWT)を取得し、API呼び出しに付与。
- *           バックエンドが tokeninfo で検証し、検証済みメールをホワイトリスト照合する。
- *   - デモ: Googleなしで自動ログイン（プレビュー/開発用）。
- *
- * クライアントでの JWT デコードは「表示用」。信頼境界はサーバー側の検証。
+ * 認証モジュール（Google OAuth 2.0 トークンフロー / ポップアップ）。
+ *   - google.accounts.oauth2.initTokenClient を使用（FedCM/One Tap に依存しない確実な方式）。
+ *   - ボタンクリックでポップアップ → アクセストークン取得 → API に付与。
+ *   - バックエンドが tokeninfo でアクセストークンを検証し、検証済みメールをホワイトリスト照合。
+ *   - 追加のOAuth設定（リダイレクトURI登録）は不要。承認済みJavaScript生成元のみでOK。
+ *   - デモ: Googleなしで自動ログイン。
  */
 window.Auth = (function () {
   var C = window.CONFIG;
-  var state = { user: null, idToken: '', ready: false };
+  var state = { token: '', exp: 0, user: null };
   var changeCb = null;
-
-  function decodeJwt(t) {
-    try {
-      var p = t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-      return JSON.parse(decodeURIComponent(escape(atob(p))));
-    } catch (e) { return {}; }
-  }
+  var tokenClient = null;
+  var LS = 'mycar.auth';
 
   function setOnChange(fn) { changeCb = fn; }
 
   async function init() {
     if (C.DEMO_MODE) {
       state.user = { email: 'kyantyome@gmail.com', name: 'kyan', picture: '' };
-      state.idToken = 'demo';
-      state.ready = true;
+      state.token = 'demo';
+      state.exp = Date.now() + 3600e3;
       return;
     }
-    // セッション中の保存トークンを復元（有効期限内なら）
-    var saved = sessionStorage.getItem('mycar.idtoken');
-    if (saved) {
-      var c = decodeJwt(saved);
-      if (c.exp && c.exp * 1000 > Date.now() + 30000) {
-        state.idToken = saved;
-        state.user = { email: c.email, name: c.name, picture: c.picture };
-      } else {
-        sessionStorage.removeItem('mycar.idtoken');
-      }
-    }
+    // 保存済みトークンを復元（有効期限内なら）
+    try {
+      var s = JSON.parse(sessionStorage.getItem(LS) || localStorage.getItem(LS) || 'null');
+      if (s && s.exp > Date.now() + 30000) { state.token = s.token; state.exp = s.exp; state.user = s.user || null; }
+    } catch (e) {}
+
     await loadGis();
-    state.ready = true;
+    if (window.google && window.google.accounts && window.google.accounts.oauth2 && C.GOOGLE_CLIENT_ID) {
+      tokenClient = window.google.accounts.oauth2.initTokenClient({
+        client_id: C.GOOGLE_CLIENT_ID,
+        scope: 'openid email profile',
+        callback: function (resp) {
+          if (resp && resp.access_token) {
+            state.token = resp.access_token;
+            state.exp = Date.now() + (Number(resp.expires_in || 3600) * 1000);
+            persist();
+            if (changeCb) changeCb();
+          }
+        },
+        error_callback: function (err) {
+          // ポップアップ閉じ・拒否など。ログイン画面のまま。
+          if (window.console) console.warn('OAuth error:', err && err.type);
+        }
+      });
+    }
+  }
+
+  function persist() {
+    var data = JSON.stringify({ token: state.token, exp: state.exp, user: state.user });
+    try { sessionStorage.setItem(LS, data); localStorage.setItem(LS, data); } catch (e) {}
   }
 
   function loadGis() {
     return new Promise(function (res) {
-      if (window.google && window.google.accounts) { initGis(); return res(); }
+      if (window.google && window.google.accounts) return res();
       var s = document.createElement('script');
       s.src = 'https://accounts.google.com/gsi/client';
       s.async = true; s.defer = true;
-      s.onload = function () { initGis(); res(); };
+      s.onload = function () { res(); };
       s.onerror = function () { res(); };
       document.head.appendChild(s);
     });
   }
 
-  function initGis() {
-    if (!window.google || !window.google.accounts || !C.GOOGLE_CLIENT_ID) return;
-    window.google.accounts.id.initialize({
-      client_id: C.GOOGLE_CLIENT_ID,
-      callback: handleCredential,
-      auto_select: true,
-      cancel_on_tap_outside: false
-    });
+  // ログインを開始（ユーザー操作から呼ぶこと＝ポップアップ要件）
+  function signIn() {
+    if (!tokenClient) { alert('ログインを初期化できません。GOOGLE_CLIENT_ID の設定とネット接続を確認してください。'); return; }
+    tokenClient.requestAccessToken({ prompt: state.user ? '' : 'select_account' });
   }
 
-  function handleCredential(resp) {
-    if (!resp || !resp.credential) return;
-    state.idToken = resp.credential;
-    var c = decodeJwt(resp.credential);
-    state.user = { email: c.email, name: c.name, picture: c.picture };
-    sessionStorage.setItem('mycar.idtoken', resp.credential);
-    if (changeCb) changeCb(state.user);
-  }
-
-  // ログイン画面にGoogleボタンを描画＋One Tap
+  // ログイン画面のボタンを描画
   function renderButton(container) {
-    if (!window.google || !window.google.accounts || !C.GOOGLE_CLIENT_ID) {
-      container.innerHTML = '<div class="login-err">Google ログインを初期化できません。<br>config.js の GOOGLE_CLIENT_ID を設定してください。</div>';
+    if (!C.GOOGLE_CLIENT_ID) {
+      container.innerHTML = '<div class="login-err">GOOGLE_CLIENT_ID が未設定です（config.js）。</div>';
       return;
     }
-    window.google.accounts.id.renderButton(container, {
-      theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with', locale: 'ja', width: 260
-    });
-    try { window.google.accounts.id.prompt(); } catch (e) {}
+    container.innerHTML = '<button type="button" class="gsign"><span class="gsign-g">G</span>Google でログイン</button>';
+    container.querySelector('.gsign').onclick = signIn;
   }
 
-  function signedIn() { return !!state.idToken && !!state.user; }
+  function signedIn() { return !!state.token && state.exp > Date.now(); }
+  function token() { return state.token; }
   function user() { return state.user; }
-  function idToken() { return state.idToken; }
+  function setUser(u) { if (u) { state.user = u; persist(); } }
 
   function signOut() {
-    state.user = null; state.idToken = '';
-    sessionStorage.removeItem('mycar.idtoken');
-    try { if (window.google && window.google.accounts) window.google.accounts.id.disableAutoSelect(); } catch (e) {}
+    try {
+      if (state.token && state.token !== 'demo' && window.google && window.google.accounts && window.google.accounts.oauth2) {
+        window.google.accounts.oauth2.revoke(state.token, function () {});
+      }
+    } catch (e) {}
+    state.token = ''; state.exp = 0; state.user = null;
+    try { sessionStorage.removeItem(LS); localStorage.removeItem(LS); } catch (e) {}
   }
 
   return {
-    init: init, setOnChange: setOnChange, renderButton: renderButton,
-    signedIn: signedIn, user: user, idToken: idToken, signOut: signOut, isDemo: function () { return !!C.DEMO_MODE; }
+    init: init, setOnChange: setOnChange, renderButton: renderButton, signIn: signIn,
+    signedIn: signedIn, token: token, user: user, setUser: setUser, signOut: signOut,
+    isDemo: function () { return !!C.DEMO_MODE; }
   };
 })();

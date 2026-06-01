@@ -727,6 +727,7 @@ var App = (function () {
     hideLogin();
     try {
       await Store.init();
+      if (window.Auth && Store.state.user) Auth.setUser(Store.state.user);
       renderVehicleBar();
       show('dashboard');
       appBooted = true;

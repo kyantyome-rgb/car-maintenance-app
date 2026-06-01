@@ -228,6 +228,15 @@ body::after{
 .login-icon{font-size:54px;margin:20px 0 8px;}
 .login-msg{font-size:12px;color:var(--txt);line-height:1.8;margin-bottom:20px;}
 .login-btn{display:flex;justify-content:center;min-height:44px;}
+.gsign{display:inline-flex;align-items:center;gap:10px;font-family:inherit;font-size:14px;font-weight:700;
+  color:#1a2533;background:#fff;border:none;border-radius:24px;padding:11px 22px;cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,.3);transition:transform .1s,box-shadow .1s;}
+.gsign:hover{box-shadow:0 4px 16px rgba(94,236,255,.4);transform:translateY(-1px);}
+.gsign:active{transform:translateY(0);}
+.gsign-g{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;
+  background:conic-gradient(from -45deg,#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0);
+  color:#fff;font-family:"Orbitron",sans-serif;font-weight:900;font-size:12px;
+  -webkit-text-stroke:0;text-shadow:0 0 2px rgba(0,0,0,.4);}
 .login-note{font-size:11px;color:var(--amber);margin-top:14px;line-height:1.5;}
 .login-err{font-size:12px;color:var(--amber);line-height:1.6;}
 body.logged-out .app,body.logged-out .nav{display:none;}
