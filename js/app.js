@@ -2,14 +2,17 @@
  * アプリ本体：状態管理・画面ルーティング・各画面描画・フォーム。
  */
 var Store = (function () {
-  var state = { user: null, vehicles: [], currentVehicleId: null, categories: [] };
+  var state = { user: null, vehicles: [], currentVehicleId: null, categories: [], primedDashboard: null, primedVid: null };
   return {
     userEmail: function () { return state.user && state.user.email; },
     state: state,
     async init() {
-      var boot = await API.get('getBootstrap');
+      var boot = await API.get('getInit');
       state.user = boot.user; state.vehicles = boot.vehicles || []; state.categories = boot.categories || [];
       if (state.vehicles.length) state.currentVehicleId = state.vehicles[0].vehicle_id;
+      // 起動時に同梱されたダッシュボードを保持（2回目の往復を省く）
+      state.primedDashboard = boot.dashboard || null;
+      state.primedVid = boot.dashboard_vehicle_id || null;
     },
     vehicles: function () { return state.vehicles; },
     categories: function () { return state.categories; },
@@ -42,7 +45,7 @@ var App = (function () {
     var bar = el('vehicleBar');
     if (!v) { bar.innerHTML = '<div class="meta"><div class="name">車両未登録</div><div class="sub">＋ から車両を追加</div></div>'; return; }
     bar.innerHTML =
-      '<div class="pic">🚙</div>' +
+      '<div class="pic"><img src="icons/car.svg" alt="car"></div>' +
       '<div class="meta"><div class="name">' + R.esc(v.name) + '</div>' +
         '<div class="sub">' + R.esc([v.maker, v.model, v.year].filter(Boolean).join(' ')) + (v.plate ? ' · ' + R.esc(v.plate) : '') + '</div></div>' +
       '<div class="odo"><div class="num">' + R.num(v.current_odo) + '</div><div class="lbl">TOTAL km</div></div>' +
@@ -89,7 +92,14 @@ var App = (function () {
   async function screenDashboard() {
     var vid = Store.current() && Store.current().vehicle_id;
     if (!vid) { screenEl.innerHTML = emptyVehicle(); bindEmpty(); return; }
-    var d = await API.get('getDashboard', { vehicle_id: vid });
+    var d;
+    // 起動直後はgetInitで取得済みのダッシュボードを再利用（往復削減）
+    if (Store.state.primedDashboard && Store.state.primedVid === vid) {
+      d = Store.state.primedDashboard;
+      Store.state.primedDashboard = null; Store.state.primedVid = null;
+    } else {
+      d = await API.get('getDashboard', { vehicle_id: vid });
+    }
 
     var topAlerts = d.alerts.slice(0, 3);
     var restAlerts = d.alerts.slice(3);

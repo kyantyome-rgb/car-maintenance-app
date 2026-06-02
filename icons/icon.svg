@@ -1,21 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#5eecff"/>
-      <stop offset="1" stop-color="#ff5cf3"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0c2036"/>
+      <stop offset="1" stop-color="#04070f"/>
     </linearGradient>
   </defs>
-  <rect width="512" height="512" fill="#04070f"/>
-  <rect width="512" height="512" fill="#0a1830" opacity="0.6"/>
-  <!-- tachometer arc -->
-  <g fill="none" stroke-width="26" stroke-linecap="round">
-    <path d="M150 360 A150 150 0 1 1 362 360" stroke="#13314d"/>
-    <path d="M150 360 A150 150 0 0 1 256 106" stroke="url(#g)" style="filter:drop-shadow(0 0 10px #5eecff)"/>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="96" fill="none" stroke="#5eecff" stroke-width="6" opacity="0.5"/>
+  <!-- ルーミー型の車（赤・屋根黒）。120x84 のアートを中央に配置 -->
+  <g transform="translate(72 150) scale(3.05)">
+    <path d="M12 60 L12 50 Q12 44 18 43 L26 43 L34 22 Q36 18 42 18 L84 18 Q90 18 92 24 L98 41 L106 43 Q112 45 112 52 L112 60 Z" fill="#e02b2b"/>
+    <path d="M34 22 Q36 18 42 18 L84 18 Q90 18 92 24 L90.5 27 L35.5 27 Z" fill="#191919"/>
+    <path d="M40 29 L40 41 L57 41 L57 29 Z" fill="#bfe6ff"/>
+    <path d="M61 29 L61 41 L86 41 L82.5 29 Z" fill="#bfe6ff"/>
+    <rect x="58.2" y="29" width="1.6" height="20" fill="#b21f1f"/>
+    <rect x="104.5" y="48" width="7" height="6" rx="2" fill="#fff2bf"/>
+    <path d="M12 60 L112 60 L112 62 Q112 64 110 64 L14 64 Q12 64 12 62 Z" fill="#c01f1f"/>
+    <circle cx="35" cy="64" r="12.5" fill="#1b1b1b"/><circle cx="35" cy="64" r="6" fill="#d3dae0"/>
+    <circle cx="93" cy="64" r="12.5" fill="#1b1b1b"/><circle cx="93" cy="64" r="6" fill="#d3dae0"/>
   </g>
-  <!-- needle -->
-  <g stroke="#ff5cf3" stroke-width="10" stroke-linecap="round" style="filter:drop-shadow(0 0 8px #ff5cf3)">
-    <line x1="256" y1="256" x2="320" y2="190"/>
-  </g>
-  <circle cx="256" cy="256" r="20" fill="#5eecff"/>
-  <text x="256" y="430" font-family="Orbitron, sans-serif" font-size="62" font-weight="900" fill="#5eecff" text-anchor="middle">MC</text>
+  <text x="256" y="470" font-family="Orbitron, Arial, sans-serif" font-size="46" font-weight="900" fill="#5eecff" text-anchor="middle" letter-spacing="2">MYCAR</text>
 </svg>

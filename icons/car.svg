@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 84">
+  <!-- ボディ（赤）：背の高い2BOX。前(右)は短いノーズ -->
+  <path d="M12 60 L12 50 Q12 44 18 43 L26 43 L34 22 Q36 18 42 18 L84 18 Q90 18 92 24 L98 41 L106 43 Q112 45 112 52 L112 60 Z"
+        fill="#e02b2b"/>
+  <!-- ルーフ（黒）：トップのツートン -->
+  <path d="M34 22 Q36 18 42 18 L84 18 Q90 18 92 24 L90.5 27 L35.5 27 Z" fill="#191919"/>
+  <!-- ウィンドウ（後・前） -->
+  <path d="M40 29 L40 41 L57 41 L57 29 Z" fill="#bfe6ff"/>
+  <path d="M61 29 L61 41 L86 41 L82.5 29 Z" fill="#bfe6ff"/>
+  <!-- ドアの境目・ハンドル -->
+  <rect x="58.2" y="29" width="1.6" height="20" fill="#b21f1f"/>
+  <rect x="50" y="46" width="8" height="2.2" rx="1.1" fill="#7a1414"/>
+  <rect x="70" y="46" width="8" height="2.2" rx="1.1" fill="#7a1414"/>
+  <!-- ヘッドライト（前） -->
+  <rect x="104.5" y="48" width="7" height="6" rx="2" fill="#fff2bf"/>
+  <!-- バンパー下のライン -->
+  <path d="M12 60 L112 60 L112 62 Q112 64 110 64 L14 64 Q12 64 12 62 Z" fill="#c01f1f"/>
+  <!-- タイヤ -->
+  <circle cx="35" cy="64" r="12.5" fill="#1b1b1b"/>
+  <circle cx="35" cy="64" r="6" fill="#d3dae0"/>
+  <circle cx="35" cy="64" r="2.4" fill="#8c97a3"/>
+  <circle cx="93" cy="64" r="12.5" fill="#1b1b1b"/>
+  <circle cx="93" cy="64" r="6" fill="#d3dae0"/>
+  <circle cx="93" cy="64" r="2.4" fill="#8c97a3"/>
+</svg>

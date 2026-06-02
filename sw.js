@@ -1,11 +1,11 @@
 /* オフラインキャッシュ＋通知。シェルをプリキャッシュしつつ、同一オリジンはネット優先
    （最新コードを反映しつつ、オフライン時はキャッシュにフォールバック）。 */
-var CACHE = 'mycar-v10';
+var CACHE = 'mycar-v11';
 var SHELL = [
   './', './index.html', './css/styles.css',
   './js/config.js', './js/mock.js', './js/render.js', './js/api.js', './js/auth.js',
   './js/export.js', './js/notify.js', './js/app.js',
-  './manifest.webmanifest', './icons/icon.svg'
+  './manifest.webmanifest', './icons/icon.svg', './icons/car.svg'
 ];
 
 // 設定（API_BASE / APP_TOKEN / DEMO_MODE）を SW でも参照できるよう読み込む

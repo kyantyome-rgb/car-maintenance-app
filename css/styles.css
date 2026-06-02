@@ -44,6 +44,10 @@ body::after{
 .panel::before{left:5px;top:5px;border-right:none;border-bottom:none;}
 .panel::after{right:5px;bottom:5px;border-left:none;border-top:none;}
 .pad{padding:16px;}.center{text-align:center;}.muted{color:var(--txt-dim);font-size:13px;}.small{font-size:12px;color:var(--txt-dim);line-height:1.6;}
+/* 長いURL・メール等での横はみ出しを防止 */
+.small,.li-sub,.account-row .li-sub,.ex-note,.notify-desc{overflow-wrap:anywhere;word-break:break-word;}
+.panel{max-width:100%;}
+#screen{max-width:100%;overflow-x:hidden;}
 
 /* topbar */
 .topbar{display:flex;align-items:center;gap:10px;padding:18px 4px 12px;}
@@ -63,6 +67,8 @@ body::after{
 .vehicle{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:2px;}
 .vehicle.clickable{cursor:pointer;}
 .vehicle .pic{width:52px;height:52px;flex:none;display:grid;place-items:center;font-size:26px;background:radial-gradient(circle at 30% 25%,#1d4f73,#08182a);clip-path:polygon(0 8px,8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);border:1px solid var(--line);}
+.vehicle .pic img{width:42px;height:auto;display:block;}
+.login-icon img{width:88px;height:auto;}
 .vehicle .name{font-weight:700;font-size:16px;}
 .vehicle .sub{font-size:11px;color:var(--txt-dim);margin-top:3px;font-family:"Share Tech Mono";}
 .vehicle .meta{flex:1;min-width:0;}
