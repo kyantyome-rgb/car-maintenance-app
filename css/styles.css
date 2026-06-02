@@ -200,7 +200,12 @@ body::after{
 .nav button{background:none;border:none;color:var(--txt-dim);font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;cursor:pointer;}
 .nav button .i{font-size:19px;}
 .nav button.active{color:var(--cyan);text-shadow:var(--glow);}
-.nav .fab{transform:translateY(-14px);width:50px;height:50px;color:#02111a;font-size:26px;align-self:center;background:linear-gradient(135deg,var(--cyan),var(--magenta));box-shadow:0 0 20px rgba(94,236,255,.7);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);}
+.nav .fab{justify-self:center;align-self:center;transform:translateY(-16px);width:54px;height:54px;
+  display:flex;align-items:center;justify-content:center;line-height:1;
+  color:#02111a;font-size:28px;font-weight:700;
+  background:linear-gradient(135deg,var(--cyan),var(--magenta));
+  box-shadow:0 0 18px rgba(94,236,255,.6),0 5px 14px rgba(0,0,0,.45);
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);}
 
 /* section action link */
 .sec-action{margin-left:auto;background:none;border:none;color:var(--cyan);font-family:inherit;font-size:11px;letter-spacing:1px;cursor:pointer;padding:2px 4px;}
