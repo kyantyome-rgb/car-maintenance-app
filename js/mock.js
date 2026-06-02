@@ -27,8 +27,8 @@
       { code: 'other', label: 'その他', icon: '🔩' }
     ],
     vehicles: [
-      { vehicle_id: 'v1', name: 'マイルーミー', maker: 'TOYOTA', model: 'ルーミー', year: 2018,
-        grade: 'カスタム G-T', plate: '所沢 502 ふ 67-84', current_odo: 34000, first_reg_date: '2018-05-01', photo_file_id: '' }
+      { vehicle_id: 'v1', name: 'マイカー（サンプル）', maker: 'TOYOTA', model: 'ルーミー', year: 2018,
+        grade: 'カスタム G-T', plate: '品川 300 あ 00-00', current_odo: 34000, first_reg_date: '2018-05-01', photo_file_id: '' }
     ],
     rules: [
       { rule_id: 'r1', vehicle_id: 'v1', category: 'oil', interval_km: 5000, interval_months: 6, warn_threshold_pct: 0.15, last_done_odo: 28900, last_done_date: '2025-11-20' },
@@ -46,9 +46,9 @@
       { record_id: 'm4', vehicle_id: 'v1', category: 'inspection', date: '2025-05-12', odo: 30100, cost: 102000, place: 'ディーラー', note: '車検（2年）', created_by: 'kyan' }
     ],
     refuelings: [
-      { refuel_id: 'f1', vehicle_id: 'v1', date: '2026-05-18', station: 'ENEOS 所沢', fuel_type: 'ハイオク', liters: 30.2, unit_price: 183, total: 5527, odo: 34000, full_tank: true, fuel_economy: 15.2 },
-      { refuel_id: 'f2', vehicle_id: 'v1', date: '2026-05-02', station: 'apollostation 新所沢', fuel_type: 'ハイオク', liters: 29.5, unit_price: 180, total: 5310, odo: 33540, full_tank: true, fuel_economy: 14.8 },
-      { refuel_id: 'f3', vehicle_id: 'v1', date: '2026-04-15', station: 'ENEOS 所沢', fuel_type: 'ハイオク', liters: 30.0, unit_price: 186, total: 5580, odo: 33103, full_tank: true, fuel_economy: 15.5 }
+      { refuel_id: 'f1', vehicle_id: 'v1', date: '2026-05-18', station: 'ガソリンスタンドA', fuel_type: 'ハイオク', liters: 30.2, unit_price: 183, total: 5527, odo: 34000, full_tank: true, fuel_economy: 15.2 },
+      { refuel_id: 'f2', vehicle_id: 'v1', date: '2026-05-02', station: 'ガソリンスタンドB', fuel_type: 'ハイオク', liters: 29.5, unit_price: 180, total: 5310, odo: 33540, full_tank: true, fuel_economy: 14.8 },
+      { refuel_id: 'f3', vehicle_id: 'v1', date: '2026-04-15', station: 'ガソリンスタンドA', fuel_type: 'ハイオク', liters: 30.0, unit_price: 186, total: 5580, odo: 33103, full_tank: true, fuel_economy: 15.5 }
     ],
     fixed: [
       { cost_id: 'c1', vehicle_id: 'v1', category: '自動車税', amount: 34500, cycle: 'yearly', target_year: Y, note: '' },

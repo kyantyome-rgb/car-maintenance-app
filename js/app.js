@@ -90,8 +90,6 @@ var App = (function () {
     var vid = Store.current() && Store.current().vehicle_id;
     if (!vid) { screenEl.innerHTML = emptyVehicle(); bindEmpty(); return; }
     var d = await API.get('getDashboard', { vehicle_id: vid });
-    var news = [];
-    try { news = await API.get('getNews', { vehicle_id: vid }); } catch (e) {}
 
     var topAlerts = d.alerts.slice(0, 3);
     var restAlerts = d.alerts.slice(3);
@@ -137,9 +135,9 @@ var App = (function () {
     if (!restAlerts.length && !(d.deadlines || []).length) html += '<div class="panel pad muted">直近の通知はありません。</div>';
     html += '</div>';
 
-    // news
+    // news（プレースホルダーを先に出し、後から非同期で差し込む）
     html += sec((Store.current().model || '車種') + ' NEWS');
-    html += '<div class="news">' + (news.length ? news.map(newsCard).join('') : '<div class="panel pad muted">情報なし</div>') + '</div>';
+    html += '<div class="news" id="newsBox"><div class="panel pad muted">読み込み中…</div></div>';
     html += '<div class="foot">⚠ ニュースはAI生成のため正確性は保証されません</div>';
 
     screenEl.innerHTML = html;
@@ -152,6 +150,24 @@ var App = (function () {
       g.style.cursor = 'pointer';
       g.onclick = function () { editRuleByCategory(g.dataset.cat); };
     });
+
+    // ニュースは後追いで取得（ダッシュボード表示をブロックしない）
+    loadNewsAsync(vid);
+  }
+
+  async function loadNewsAsync(vid) {
+    var box = el('newsBox'); if (!box) return;
+    try {
+      var news = await API.get('getNews', { vehicle_id: vid });
+      // 画面が切り替わっていたら破棄
+      if (currentScreen !== 'dashboard') return;
+      box = el('newsBox'); if (!box) return;
+      box.innerHTML = news && news.length
+        ? news.map(newsCard).join('')
+        : '<div class="panel pad muted">情報なし</div>';
+    } catch (e) {
+      if (el('newsBox')) el('newsBox').innerHTML = '<div class="panel pad muted">ニュースを取得できませんでした</div>';
+    }
   }
 
   // ダッシュボードのゲージから直接ルール編集へ
@@ -565,9 +581,13 @@ var App = (function () {
   function openRefuelForm(ref) {
     ref = ref || {};
     openModal('給油記録', '<form id="frm">' +
-      '<div class="ocr-row"><label class="btn ghost" for="f_receipt">📷 レシートを読み取る</label>' +
-      '<input id="f_receipt" type="file" accept="image/*" hidden></div>' +
-      '<div id="ocrStatus" class="ocr-status"></div>' +
+      '<div class="ocr-row">' +
+        '<label class="btn ghost ocr-btn" for="f_receipt_cam">📷 カメラで撮影</label>' +
+        '<label class="btn ghost ocr-btn" for="f_receipt_lib">🖼️ 写真を選ぶ</label>' +
+        '<input id="f_receipt_cam" type="file" accept="image/*" capture="environment" hidden>' +
+        '<input id="f_receipt_lib" type="file" accept="image/*" hidden>' +
+      '</div>' +
+      '<div id="ocrStatus" class="ocr-status">レシートを撮影/選択すると項目を自動入力します</div>' +
       field('日付', input('f_date', 'date', ref.date || today())) +
       field('店舗', input('f_station', 'text', ref.station)) +
       field('油種', '<select id="f_fuel"><option>レギュラー</option><option>ハイオク</option><option>軽油</option></select>') +
@@ -577,7 +597,8 @@ var App = (function () {
       field('走行距離 (km)', input('f_odo', 'number', ref.odo || (Store.current() && Store.current().current_odo), 'min="0"')) + '</div>' +
       field('', '<label class="chk"><input id="f_full" type="checkbox" checked> 満タン給油（燃費計算に使用）</label>') +
       submitBar() + '</form>');
-    el('f_receipt').onchange = handleReceiptOcr;
+    el('f_receipt_cam').onchange = handleReceiptOcr;
+    el('f_receipt_lib').onchange = handleReceiptOcr;
     bindForm(function () {
       return API.post('saveRefueling', { refueling: {
         vehicle_id: Store.current().vehicle_id, date: el('f_date').value, station: el('f_station').value,
@@ -589,21 +610,45 @@ var App = (function () {
 
   async function handleReceiptOcr(e) {
     var file = e.target.files[0]; if (!file) return;
-    var status = el('ocrStatus'); status.textContent = '読み取り中…'; status.className = 'ocr-status loading';
+    var status = el('ocrStatus'); status.textContent = '画像を準備中…'; status.className = 'ocr-status loading';
     try {
-      var dataUrl = await fileToDataUrl(file);
-      var base64 = dataUrl.split(',')[1];
-      var r = await API.post('ocrReceipt', { imageBase64: base64, mimeType: file.type });
+      // 送信前にリサイズ＆JPEG圧縮（大きすぎる写真による通信失敗・遅延を防ぐ）
+      var img = await compressImage(file, 1280, 0.7);
+      status.textContent = 'レシートを読み取り中…（数秒）';
+      var r = await API.post('ocrReceipt', { imageBase64: img.base64, mimeType: 'image/jpeg' });
       if (r.date) el('f_date').value = r.date;
       if (r.station) el('f_station').value = r.station;
       if (r.liters) el('f_liters').value = r.liters;
       if (r.unit_price) el('f_price').value = r.unit_price;
       if (r.total) el('f_total').value = r.total;
       if (r.fuel_type) { Array.from(el('f_fuel').options).forEach(function (o) { if (o.value === r.fuel_type) el('f_fuel').value = r.fuel_type; }); }
-      status.textContent = '✓ 読み取り完了（内容を確認してください）'; status.className = 'ocr-status ok';
+      status.textContent = '✓ 読み取り完了（内容を確認して保存）'; status.className = 'ocr-status ok';
     } catch (err) {
-      status.textContent = '読み取り失敗: ' + err.message; status.className = 'ocr-status err';
+      status.textContent = '読み取り失敗: ' + err.message + '（手入力もできます）'; status.className = 'ocr-status err';
+    } finally {
+      e.target.value = ''; // 同じ写真を選び直せるようにリセット
     }
+  }
+
+  // 画像をリサイズ＆JPEG圧縮して base64 を返す
+  function compressImage(file, maxSize, quality) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        var w = img.width, h = img.height;
+        var scale = Math.min(1, maxSize / Math.max(w, h));
+        var cw = Math.round(w * scale), ch = Math.round(h * scale);
+        var canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+        URL.revokeObjectURL(url);
+        var dataUrl = canvas.toDataURL('image/jpeg', quality || 0.7);
+        resolve({ base64: dataUrl.split(',')[1], dataUrl: dataUrl });
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('画像を読み込めませんでした')); };
+      img.src = url;
+    });
   }
 
   function openFixedForm(fc) {

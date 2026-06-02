@@ -179,8 +179,9 @@ body::after{
 .chk input{width:auto;}
 .form-actions{display:flex;gap:10px;margin-top:8px;}
 .form-actions .btn{flex:1;}
-.ocr-row{margin-bottom:10px;}
-.ocr-status{font-size:12px;margin-bottom:10px;min-height:16px;}
+.ocr-row{display:flex;gap:8px;margin-bottom:8px;}
+.ocr-row .ocr-btn{flex:1;text-align:center;font-size:13px;padding:11px 8px;}
+.ocr-status{font-size:11.5px;margin-bottom:10px;min-height:16px;color:var(--txt-dim);line-height:1.5;}
 .ocr-status.loading{color:var(--amber);}.ocr-status.ok{color:var(--green);}.ocr-status.err{color:var(--red);}
 
 /* modal */

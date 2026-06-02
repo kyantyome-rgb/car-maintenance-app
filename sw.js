@@ -1,6 +1,6 @@
 /* オフラインキャッシュ＋通知。シェルをプリキャッシュしつつ、同一オリジンはネット優先
    （最新コードを反映しつつ、オフライン時はキャッシュにフォールバック）。 */
-var CACHE = 'mycar-v9';
+var CACHE = 'mycar-v10';
 var SHELL = [
   './', './index.html', './css/styles.css',
   './js/config.js', './js/mock.js', './js/render.js', './js/api.js', './js/auth.js',
@@ -72,20 +72,8 @@ self.addEventListener('periodicsync', function (e) {
 });
 
 async function fetchDueAndNotify() {
-  try {
-    if (typeof CONFIG === 'undefined' || CONFIG.DEMO_MODE || !CONFIG.API_BASE) return;
-    var url = CONFIG.API_BASE + '?action=getDueNotifications&token=' + encodeURIComponent(CONFIG.APP_TOKEN);
-    var res = await fetch(url);
-    var json = await res.json();
-    if (!json || !json.ok) return;
-    (json.data || []).forEach(function (v) {
-      if (!v.items || !v.items.length) return;
-      self.registration.showNotification('🔔 ' + v.vehicle_name + ' メンテナンス通知', {
-        body: v.items.join('\n'),
-        tag: 'mycar-' + v.vehicle_id, renotify: false,
-        icon: 'icons/icon.svg', badge: 'icons/icon.svg',
-        data: { url: './index.html', vehicle_id: v.vehicle_id }
-      });
-    });
-  } catch (e) { /* オフライン等はスルー */ }
+  // セキュリティ上、通知取得APIは Google ログイン必須にしたため、
+  // 認証情報を持てないバックグラウンドSWからは取得しない（no-op）。
+  // 通知はアプリ起動・復帰時（認証済みのページ側）でチェックして表示する。
+  return;
 }
