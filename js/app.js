@@ -710,14 +710,16 @@ var App = (function () {
   /* ---------- 起動 ---------- */
   /* ---------- ログイン ---------- */
   function showLogin(note) {
-    el('loginScreen').hidden = false;
+    var ls = el('loginScreen');
+    ls.hidden = false; ls.style.display = '';   // CSSの display:grid を使う
     document.body.classList.add('logged-out');
     var n = el('loginNote');
     if (n) n.textContent = note || '';
     Auth.renderButton(el('gbtn'));
   }
   function hideLogin() {
-    el('loginScreen').hidden = true;
+    var ls = el('loginScreen');
+    ls.hidden = true; ls.style.display = 'none'; // 確実に隠す（属性とstyle両方）
     document.body.classList.remove('logged-out');
   }
 

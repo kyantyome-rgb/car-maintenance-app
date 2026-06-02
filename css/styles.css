@@ -217,6 +217,7 @@ body::after{
 .rule-hint{font-size:10.5px;color:var(--txt-dim);margin:10px 0 6px;letter-spacing:.5px;}
 
 /* login */
+[hidden]{display:none !important;}
 .login-screen{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:24px;
   background:radial-gradient(900px 480px at 50% 0%, #16395f 0%, transparent 58%),linear-gradient(180deg,#061021,#02050c);}
 .login-card{position:relative;max-width:340px;width:100%;text-align:center;background:var(--panel);border:1px solid var(--line);padding:32px 24px;
